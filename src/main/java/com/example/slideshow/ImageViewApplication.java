@@ -29,9 +29,5 @@ public class ImageViewApplication extends Application {
         launch();
 
 
-
-
-
-
     }
 }

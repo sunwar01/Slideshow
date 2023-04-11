@@ -1,6 +1,9 @@
 package com.example.slideshow;
 
 
+import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
@@ -26,12 +29,21 @@ import java.util.List;
 
 public class ImageViewController {
 
-    private  final List<Image> images = new ArrayList<>();
+    private  final List<ImageObject> images = new ArrayList<>();
+
+
     private  int currentImageIndex = 0;
 
     private boolean isSlideShowRunning = false;
 
-    PixelCounter pixelCounter = new PixelCounter();
+
+
+    @FXML
+    private Label redCount, greenCount, blueCount, mixedCount;
+
+
+    PixelCounter px = new PixelCounter();
+
 
     @FXML
     Parent root;
@@ -39,8 +51,6 @@ public class ImageViewController {
     @FXML
     private ImageView imageView;
 
-    @FXML
-    private Label redCount, greenCount, blueCount, mixedCount;
 
     @FXML
     private void handleBtnLoadAction() throws IOException {
@@ -54,31 +64,22 @@ public class ImageViewController {
         {
             files.forEach((File f) ->
             {
-                images.add(new Image(f.toURI().toString()));
+                try {
+                    getColorCountFromImageFilePath(f.getAbsolutePath());
+                    ImageObject image = new ImageObject(f.getAbsolutePath(), px.getRc(), px.getGc(), px.getBc(), px.getMc());
+                    images.add(image);
+                    px.reset();
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             });
             displayImage();
-
-
-
         }
     }
 
 
-    public BufferedImage getCurrentImage() throws IOException {
 
-        BufferedImage in = ImageIO.read((ImageInputStream) images.get(currentImageIndex));
-
-        BufferedImage newImage = new BufferedImage(
-                in.getWidth(), in.getHeight(), BufferedImage.TYPE_INT_ARGB);
-
-        Graphics2D g = newImage.createGraphics();
-        g.drawImage(in, 0, 0, null);
-        g.dispose();
-
-        newImage.getGraphics().drawImage(in, 0, 0, null);
-
-        return newImage;
-    }
     @FXML
     private void handleBtnPreviousAction() throws IOException {
         if (!images.isEmpty())
@@ -93,23 +94,21 @@ public class ImageViewController {
 
     @FXML
     private void handleBtnNextAction() throws IOException {
-        if (!images.isEmpty()) {
+        if (!images.isEmpty())
+        {
             currentImageIndex = (currentImageIndex + 1) % images.size();
             displayImage();
-    
+
         }
     }
 
+    private Timer timer;
 
     @FXML
-    private void handleBtnStartSlideShow()
-    {
-
+    private void handleBtnStartSlideShow() {
         isSlideShowRunning = true;
-
-        if (!images.isEmpty())
-        {
-            Timer timer = new Timer(1000, e -> {
+        if (!images.isEmpty()) {
+            timer = new Timer(1000, e -> {
                 currentImageIndex = (currentImageIndex + 1) % images.size();
                 try {
                     displayImage();
@@ -124,16 +123,17 @@ public class ImageViewController {
     }
 
     @FXML
-    private void handleBtnStopSlideShow()
-    {
-
+    private void handleBtnStopSlideShow() {
         isSlideShowRunning = false;
+        timer.stop();
         System.out.println(isSlideShowRunning);
-
     }
 
 
-    public void initialize() {
+    public void initialize() throws IOException {
+
+
+
 
 
     }
@@ -141,20 +141,28 @@ public class ImageViewController {
     private void displayImage() throws IOException {
         if (!images.isEmpty())
         {
-            imageView.setImage(images.get(currentImageIndex));
-            showColorCount();
+
+            imageView.setImage(new Image(images.get(currentImageIndex).getFilepath()));
+
+            Platform.runLater(() -> {
+                redCount.setText(String.valueOf(images.get(currentImageIndex).getR()));
+                greenCount.setText(String.valueOf(images.get(currentImageIndex).getG()));
+                blueCount.setText(String.valueOf(images.get(currentImageIndex).getB()));
+                mixedCount.setText(String.valueOf(images.get(currentImageIndex).getM()));
+            });
+
+
+
+
         }
     }
 
-    public void showColorCount() throws IOException {
-        String filepath = images.get(currentImageIndex).getUrl();
 
-        PixelCounter.countColorPixels((ImageIO.read(new File(filepath.substring(6)))));
+    public void getColorCountFromImageFilePath(String filepath) throws IOException {
 
+        px.countColorPixels((ImageIO.read(new File(filepath))));
 
-        redCount.setText(String.valueOf(PixelCounter.getRc()));
-        greenCount.setText(String.valueOf(PixelCounter.getGc()));
-        blueCount.setText(String.valueOf(PixelCounter.getBc()));
-        mixedCount.setText(String.valueOf(PixelCounter.getMc()));
     }
+
+
 }
