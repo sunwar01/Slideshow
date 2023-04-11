@@ -1,27 +1,22 @@
 package com.example.slideshow;
 
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 
 
-public class PixelCounter implements Runnable {
+public class PixelCounter  {
 
-    private final ImageViewController imageViewController = new ImageViewController();
+    //private final ImageViewController imageViewController = new ImageViewController();
 
-  @Override
-    public void run() {
+    private static int rc = 0;
+    private static int gc = 0;
+    private static int bc = 0;
+    private static int mc = 0;
+    private static int pc = 0;
 
-        try {
-            countColorPixels(imageViewController.getCurrentImage());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
-    }
 
     public static void countColorPixels(BufferedImage img) throws IOException {
 

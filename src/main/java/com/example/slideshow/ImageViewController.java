@@ -10,6 +10,8 @@ import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,6 +19,7 @@ import java.awt.event.ActionListener;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -28,6 +31,8 @@ public class ImageViewController {
 
     private boolean isSlideShowRunning = false;
 
+    PixelCounter pixelCounter = new PixelCounter();
+
     @FXML
     Parent root;
 
@@ -38,8 +43,7 @@ public class ImageViewController {
     private Label redCount, greenCount, blueCount, mixedCount;
 
     @FXML
-    private void handleBtnLoadAction()
-    {
+    private void handleBtnLoadAction() throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select image files");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Images",
@@ -60,13 +64,23 @@ public class ImageViewController {
     }
 
 
-    public BufferedImage getCurrentImage()
-    {
-        return images.get(currentImageIndex);
+    public BufferedImage getCurrentImage() throws IOException {
+
+        BufferedImage in = ImageIO.read((ImageInputStream) images.get(currentImageIndex));
+
+        BufferedImage newImage = new BufferedImage(
+                in.getWidth(), in.getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g = newImage.createGraphics();
+        g.drawImage(in, 0, 0, null);
+        g.dispose();
+
+        newImage.getGraphics().drawImage(in, 0, 0, null);
+
+        return newImage;
     }
     @FXML
-    private void handleBtnPreviousAction()
-    {
+    private void handleBtnPreviousAction() throws IOException {
         if (!images.isEmpty())
         {
             currentImageIndex =
@@ -78,8 +92,7 @@ public class ImageViewController {
 
 
     @FXML
-    private void handleBtnNextAction()
-    {
+    private void handleBtnNextAction() throws IOException {
         if (!images.isEmpty()) {
             currentImageIndex = (currentImageIndex + 1) % images.size();
             displayImage();
@@ -98,7 +111,11 @@ public class ImageViewController {
         {
             Timer timer = new Timer(1000, e -> {
                 currentImageIndex = (currentImageIndex + 1) % images.size();
-                displayImage();
+                try {
+                    displayImage();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             });
             timer.start();
             System.out.println("SlideShow is running");
@@ -110,18 +127,22 @@ public class ImageViewController {
     private void handleBtnStopSlideShow()
     {
 
-            isSlideShowRunning = false;
-            System.out.println("SlideShow is stopped");
-            System.out.println(isSlideShowRunning);
+        isSlideShowRunning = false;
+        System.out.println(isSlideShowRunning);
 
     }
 
 
-    private void displayImage()
-    {
+    public void initialize() {
+
+
+    }
+
+    private void displayImage() throws IOException {
         if (!images.isEmpty())
         {
             imageView.setImage(images.get(currentImageIndex));
+            showColorCount();
         }
     }
 
