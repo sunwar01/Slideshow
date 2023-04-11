@@ -60,6 +60,12 @@ public class PixelCounter implements Runnable {
             }
         }
 
+        rc = redCount;
+        gc = greenCount;
+        bc = blueCount;
+        mc = mixedCount;
+        pc = pixelCount;
+
         System.out.println("Red Pixel Count:" + redCount);
         System.out.println("Green Pixel Count:" + greenCount);
         System.out.println("Blue Pixel Count:" + blueCount);
@@ -67,6 +73,20 @@ public class PixelCounter implements Runnable {
         System.out.println("Pixel Count:" + pixelCount);
     }
 
+    public static int getRc(){
+        return rc;
+    }
 
+    public static int getGc(){
+        return gc;
+    }
+
+    public static int getBc(){
+        return bc;
+    }
+
+    public static int getMc(){
+        return mc;
+    }
 
 }

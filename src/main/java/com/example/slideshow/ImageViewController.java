@@ -3,6 +3,7 @@ package com.example.slideshow;
 
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -10,6 +11,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -31,6 +33,9 @@ public class ImageViewController {
 
     @FXML
     private ImageView imageView;
+
+    @FXML
+    private Label redCount, greenCount, blueCount, mixedCount;
 
     @FXML
     private void handleBtnLoadAction()
@@ -72,14 +77,12 @@ public class ImageViewController {
 
 
 
-
     @FXML
     private void handleBtnNextAction()
     {
         if (!images.isEmpty()) {
             currentImageIndex = (currentImageIndex + 1) % images.size();
             displayImage();
-
     
         }
     }
@@ -103,15 +106,15 @@ public class ImageViewController {
         System.out.println(isSlideShowRunning);
     }
 
-        @FXML
-        private void handleBtnStopSlideShow()
-        {
+    @FXML
+    private void handleBtnStopSlideShow()
+    {
 
             isSlideShowRunning = false;
             System.out.println("SlideShow is stopped");
             System.out.println(isSlideShowRunning);
 
-        }
+    }
 
 
     private void displayImage()
@@ -120,5 +123,17 @@ public class ImageViewController {
         {
             imageView.setImage(images.get(currentImageIndex));
         }
+    }
+
+    public void showColorCount() throws IOException {
+        String filepath = images.get(currentImageIndex).getUrl();
+
+        PixelCounter.countColorPixels((ImageIO.read(new File(filepath.substring(6)))));
+
+
+        redCount.setText(String.valueOf(PixelCounter.getRc()));
+        greenCount.setText(String.valueOf(PixelCounter.getGc()));
+        blueCount.setText(String.valueOf(PixelCounter.getBc()));
+        mixedCount.setText(String.valueOf(PixelCounter.getMc()));
     }
 }
