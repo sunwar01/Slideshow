@@ -85,6 +85,7 @@ public class PixelCounter  {
         bc = 0;
         mc = 0;
         pc = 0;
+
     }
 
     public  int getRc(){

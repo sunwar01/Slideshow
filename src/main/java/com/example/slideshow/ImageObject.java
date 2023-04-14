@@ -4,6 +4,8 @@ public class ImageObject {
 
 
         private String filepath;
+
+        private String fileName;
         private int r;
         private int g;
         private int b;
@@ -11,13 +13,19 @@ public class ImageObject {
 
 
 
-        public ImageObject(String filepath, int r, int g, int b, int m) {
+        public ImageObject(String filepath, String fileName, int r, int g, int b, int m) {
             this.filepath = filepath;
+            this.fileName = fileName;
             this.r = r;
             this.g = g;
             this.b = b;
             this.m = m;
 
+        }
+
+
+        public String getFileName() {
+            return fileName;
         }
 
         public String getFilepath() {
