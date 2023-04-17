@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class ImageViewController {
 
@@ -80,7 +81,7 @@ public class ImageViewController {
                     images.add(image);
                     px.reset();
 
-                } catch (IOException e) {
+                } catch (IOException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             });
@@ -134,12 +135,12 @@ public class ImageViewController {
                 }
             });
             timer.start();
-            System.out.println("SlideShow is running");
+
         }
         });
 
 
-        System.out.println(isSlideShowRunning);
+
         executorService.shutdown();
     }
 
@@ -190,9 +191,26 @@ public class ImageViewController {
     }
 
 
-    public void getColorCountFromImageFilePath(String filepath) throws IOException {
+    public void getColorCountFromImageFilePath(String filepath) throws IOException, InterruptedException {
 
-        px.countColorPixels((ImageIO.read(new File(filepath))));
+
+        ExecutorService executorService = Executors.newCachedThreadPool();
+
+        executorService.execute(() -> {
+            try {
+                px.countColorPixels((ImageIO.read(new File(filepath))));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        executorService.shutdown();
+
+        try {
+            executorService.awaitTermination(1, TimeUnit.MINUTES); // Wait for thread to finish
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 

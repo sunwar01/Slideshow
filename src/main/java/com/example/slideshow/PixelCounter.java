@@ -22,9 +22,7 @@ public class PixelCounter  {
 
     public  void countColorPixels(BufferedImage img) throws IOException {
 
-        ExecutorService executorService = Executors.newCachedThreadPool();
 
-        executorService.execute(() -> {
 
             BufferedImage image = img;
             int width = image.getWidth();
@@ -67,14 +65,7 @@ public class PixelCounter  {
             mc = mixedCount;
             pc = pixelCount;
 
-        });
 
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(1, TimeUnit.MINUTES); // Wait for thread to finish
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
 
     }
